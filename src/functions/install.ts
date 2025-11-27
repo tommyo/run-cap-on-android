@@ -8,9 +8,11 @@ const execAsync = promisify(exec);
 const log = console.log;
 
 export const installApp = async ({
+  cmd,
   androidFolder,
   applicationId,
 }: {
+  cmd: string;
   androidFolder: string | undefined;
   applicationId: string | undefined;
 }): Promise<void> => {
@@ -27,7 +29,7 @@ export const installApp = async ({
   }
 
   await execAsync(
-    `cmd.exe /C adb shell cmd activity start-activity $(cmd.exe /C adb shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER ${applicationId} | tail -1)`
+    `${cmd}adb.exe shell cmd activity start-activity $(${cmd}adb.exe shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER ${applicationId} | tail -1)`
   );
 
   spinner.stop();

@@ -7,12 +7,12 @@ import { removeLineEndings } from './utils';
 import { buildApp } from './functions/build';
 import { startEmulator } from './functions/emulator';
 import { installApp } from './functions/install';
+import packageJson from '../package.json';
 
 const execAsync = promisify(exec);
 
 const log = console.log;
 
-const packageJson = require('../package.json');
 const version: string = packageJson.version;
 
 const program = new Command();
@@ -39,7 +39,7 @@ async function main() {
   };
 
   const { stdout: currentUser } = await execAsync(
-    `cmd.exe /C echo %username% ${removeLineEndings()}`
+    `cd /mnt/c && cmd.exe /C echo %username% ${removeLineEndings()}`
   );
 
   const root = process.cwd();
@@ -69,8 +69,9 @@ async function main() {
     return;
   }
 
+  const cmd = ''; // 'cd /mnt/c && cmd.exe /C '
   const windowsAdb = await execAsync(
-    `cd /mnt/c && cmd.exe /C adb --version | grep "Android Debug Bridge" | tr -d $'Android Debug Bridge version ' ${removeLineEndings()}`
+    `${cmd}adb --version | grep "Android Debug Bridge" | tr -d $'Android Debug Bridge version ' ${removeLineEndings()}`
   );
 
   if (windowsAdb.stderr) {
@@ -93,9 +94,9 @@ async function main() {
 
   await buildApp({ currentUser, root, androidFolder, sdk });
 
-  await startEmulator();
+  await startEmulator({ cmd });
 
-  await installApp({ androidFolder, applicationId });
+  await installApp({ cmd, androidFolder, applicationId });
 }
 
 main().catch(e => {
